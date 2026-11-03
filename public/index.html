@@ -6,7 +6,26 @@
   <title>Acortador de links Básivo v1</title>
 </head>
 <body>
-  <h1>Acortador de links Básivo v1</h1>
-  <p>Próximamente: links cortos.</p>
+  <h1>Mi link shortener</h1>
+
+  <form id="formulario">
+
+    <label for="url">Link largo</label>
+    <input id="url" type="url" placeholder="https://..." required>
+
+    <label for="slug">Nombre corto (opcional)</label>
+    <input id="slug" type="text" placeholder="cv">
+
+    <button type="submit">Acortar</button>
+  </form>
+
+  <p id="mensaje"></p>
+
+  <div id="resultado" hidden>
+    <a id="link-corto" href="#" target="_blank"></a>
+    <button id="copiar" type="button">Copiar</button>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
