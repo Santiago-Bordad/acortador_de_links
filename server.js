@@ -5,20 +5,38 @@ const { crearLink, buscarLink } = require('./db'); // importa las funciones que 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());  // desarma el JSON que llega en el body de la petición y lo pone en req.body com obj en js
+app.use(express.json()); // desarma el JSON que llega en el body y lo pone en req.body como objeto de JS
 app.use(express.static(path.join(__dirname, 'public'))); // muestra los archivos de la carpeta "public"
+
+// genera un nombre corto al azar, por ejemplo "k3x9a"
+function generarSlug() {
+    const letras = 'abcdefghjkmnpqrstuvwxyz23456789'; // sin l, i, o, 0 ni 1 para que no se confundan
+    let slug = '';
+    for (let i = 0; i < 5; i++) {
+        slug += letras[Math.floor(Math.random() * letras.length)];
+    }
+    return slug;
+}
 
 // ruta de prueba
 app.get('/ping', (req, res) => {
     res.send('pong');
 });
 
-//  link nuevo: POST /api/links (me tiraba error, con esto no tendría que)
+// crear un link nuevo: POST /api/links
 app.post('/api/links', (req, res) => {
-    const { url, slug } = req.body;
+    const { url } = req.body;
+    let slug = (req.body.slug || '').trim(); // si no vino slug, texto vacío; trim saca espacios
 
-    if (!url || !slug) {
-        return res.status(400).json({ error: 'Faltan url o slug' });
+    if (!url) {
+        return res.status(400).json({ error: 'Falta el link' });
+    }
+
+    // si no se eligio, se crea 
+    if (!slug) {
+        do {
+            slug = generarSlug();
+        } while (buscarLink(slug));
     }
 
     try {
@@ -35,18 +53,13 @@ app.post('/api/links', (req, res) => {
 });
 
 app.get('/:slug', (req, res) => {
-  // hace que el servidor responda a cualquier GET con un slug, por ejemplo /google o /milink o /etc
-
     const link = buscarLink(req.params.slug);
 
     if (!link) {
-    return res.status(404).send('Ese link no existe');
+        return res.status(404).send('Ese link no existe');
     }
 
-    // 404 por si no existe el slug en la base de datos
-
-    res.redirect(link.url);
-    // responde con un redirect (código 302) a la URL que está en la base de datos para ese slug
+    res.redirect(link.url); // redirect con código 302 al link original
 });
 
 // arranque del servidor
