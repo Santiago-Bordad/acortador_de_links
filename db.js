@@ -32,7 +32,21 @@ function buscarLink(slug) {
 }
 // seleccionar las columnas de la tabla "links" donde el slug sea igual al que se pasa como parámetro
 
+function listarLinks() {
+  return db
+    .prepare('SELECT * FROM links ORDER BY id DESC')
+    .all();
+}
+// trae todos los links, ordenados por id de mayor a menor (el más nuevo primero)
+// .all() devuelve todas las filas como lista; .get() devolvía una sola
+
+function sumarClick(slug) {
+  db.prepare('UPDATE links SET clicks = clicks + 1 WHERE slug = ?').run(slug);
+}
+// suma 1 a los clics del link con ese slug
+// ojo: sin el WHERE le sumaría 1 a TODOS los links
+
 
 // exportar
-module.exports = { crearLink, buscarLink };
-// hace que estas dos funciones se puedan usar desde otros archivos.
+module.exports = { crearLink, buscarLink, listarLinks, sumarClick };
+// hace que estas cuatro funciones se puedan usar desde otros archivos.

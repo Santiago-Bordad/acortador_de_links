@@ -1,0 +1,411 @@
+/* ═════════════════════════════════════════════
+   TAQUILLA DE LINKS
+   Concepto: una boletería de noche. Cada link corto es un boleto.
+   ═════════════════════════════════════════════ */
+
+/* Las fuentes se bajan de Google Fonts.
+   Bungee → letras de cartel pintado; Martian Mono → monoespaciada para links. */
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Martian+Mono:wght@300;400;600&display=swap');
+
+
+/* ── Variables: los colores y fuentes se definen UNA vez acá
+      y se usan en todo el archivo con var(--nombre).
+      Si querés cambiar el naranja, lo cambiás solo acá. ── */
+:root {
+    --asfalto: #16130f;        /* fondo, casi negro cálido */
+    --asfalto-2: #211c16;      /* paneles */
+    --pozo: #0e0c09;           /* fondo de los campos de texto */
+    --borde: #3a3229;
+    --papel: #f4ead5;          /* los boletos */
+    --papel-sombra: #cdbd9e;
+    --tinta: #1d1a16;          /* texto sobre papel */
+    --texto: #efe6d2;          /* texto sobre fondo oscuro */
+    --texto-suave: #a39780;
+    --senal: #ff4f1f;          /* naranja de señal: el color protagonista */
+    --senal-oscura: #8f2a0c;
+    --mostaza: #f2b630;        /* acento */
+
+    --letrero: 'Bungee', 'Arial Black', sans-serif;
+    --mono: 'Martian Mono', 'Courier New', monospace;
+}
+
+
+/* ── Base ── */
+
+* {
+    box-sizing: border-box;
+}
+
+/* hidden siempre gana, aunque otra regla diga display: flex */
+[hidden] {
+    display: none !important;
+}
+
+body {
+    max-width: 640px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 40px 16px 64px;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--texto);
+
+
+    /* Fondo en capas (la primera queda arriba):
+        1. un resplandor naranja desde arriba, como un cartel encendido
+        2. una trama de puntitos
+        3. el color de asfalto */
+    background:
+        radial-gradient(ellipse 90% 45% at 50% -8%, rgba(255, 79, 31, 0.24), transparent 70%),
+        radial-gradient(circle, rgba(239, 230, 210, 0.06) 1px, transparent 1.6px) 0 0 / 22px 22px,
+        var(--asfalto);
+    background-attachment: fixed; /* el fondo queda quieto al hacer scroll */
+}
+
+/* Animación de entrada: cada bloque sube y aparece */
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+}
+
+
+/* ── El letrero ── */
+
+h1 {
+    margin: 0 0 28px;
+    font-family: var(--letrero);
+    font-weight: 400;
+    font-size: clamp(30px, 9vw, 50px); /* crece con la pantalla, entre 30 y 50px */
+    line-height: 1.05;
+    color: var(--papel);
+    text-shadow: 3px 3px 0 var(--senal); /* sombra corrida, como impresión fuera de registro */
+    animation: aparecer 0.6s ease-out both;
+}
+
+/* El cartelito "● Taquilla abierta" arriba del título */
+/* h1::before {
+    content: '● Taquilla abierta';
+    display: block;
+    margin-bottom: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-shadow: none;
+    color: var(--mostaza);
+    animation: titilar 2.4s steps(1) infinite;
+} */
+
+@keyframes titilar {
+    50% { opacity: 0.35; }
+}
+
+
+/* ── La máquina expendedora (formulario) ── */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    background: var(--asfalto-2);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05), /* brillo arriba, como metal */
+        0 18px 40px -18px rgba(0, 0, 0, 0.8);    /* sombra hacia abajo */
+    animation: aparecer 0.6s 0.12s ease-out both;
+}
+
+/* La franja de seguridad amarilla y negra arriba de la máquina */
+form::before {
+    content: '';
+    height: 10px;
+    margin: -20px -20px 10px;
+    border-radius: 10px 10px 0 0;
+    background: repeating-linear-gradient(-45deg,
+        var(--mostaza) 0 12px,
+        var(--asfalto) 12px 24px);
+}
+
+label {
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+}
+
+input {
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 16px; /* 16 o más evita el zoom del iPhone */
+    color: var(--papel);
+    background: var(--pozo);
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input::placeholder {
+  color: #5c5245;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--mostaza);
+    box-shadow: 0 0 0 3px rgba(242, 182, 48, 0.2);
+    }
+
+
+/* ── Botones ── */
+
+button {
+    font-family: var(--letrero);
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    transition: transform 0.08s, box-shadow 0.08s, background 0.15s;
+}
+
+/* El botón grande: se hunde al apretarlo, como un botón físico */
+form button {
+    margin-top: 10px;
+    padding: 14px 16px;
+    color: var(--tinta);
+    background: var(--senal);
+    box-shadow: 0 5px 0 var(--senal-oscura);
+}
+
+form button:hover {
+    background: #ff6a3d;
+}
+
+form button:active {
+    transform: translateY(5px);
+    box-shadow: 0 0 0 var(--senal-oscura);
+}
+
+button:focus-visible {
+    outline: 2px solid var(--mostaza);
+    outline-offset: 3px;
+}
+
+
+/* ── Mensaje de error ── */
+
+#mensaje {
+    min-height: 1em;
+    margin: 14px 0 0;
+    font-weight: 600;
+    color: var(--senal);
+    }
+
+#mensaje:not(:empty)::before {
+    content: '✕ ';
+}
+
+
+/* ── El boleto impreso (resultado) ── */
+
+#resultado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin: 18px 0 8px;
+    padding: 18px 28px;
+    color: var(--tinta);
+
+    /* Papel con una muesca redonda a cada lado, como un boleto:
+        dos mitades de papel, cada una con un círculo transparente en su borde */
+    background:
+        radial-gradient(circle at 0 50%, transparent 11px, var(--papel) 12px) left / 51% 100% no-repeat,
+        radial-gradient(circle at 100% 50%, transparent 11px, var(--papel) 12px) right / 51% 100% no-repeat;
+    filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.35));
+
+    /* Cada vez que aparece, "sale impreso" de arriba hacia abajo */
+    animation: imprimir 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes imprimir {
+    from {
+        clip-path: inset(0 0 100% 0); /* recortado: no se ve nada */
+        transform: translateY(-10px);
+    }
+    to {
+        clip-path: inset(0 0 0 0);    /* se ve entero */
+        transform: none;
+    }
+}
+
+/* El encabezado del boleto */
+#resultado::before {
+    content: 'Link acortado:';
+    width: 100%;
+    font-family: var(--letrero);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--senal);
+}
+
+#link-corto {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tinta);
+    overflow-wrap: anywhere; /* si el link es largo, corta en cualquier parte */
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+#copiar {
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--papel);
+    background: var(--tinta);
+    box-shadow: 0 3px 0 #000;
+}
+
+#copiar:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 #000;
+}
+
+
+/* ── "Mis links": el talonario ── */
+
+h2 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 44px 0 4px;
+    font-family: var(--letrero);
+    font-weight: 400;
+    font-size: 20px;
+    color: var(--mostaza);
+    animation: aparecer 0.6s 0.24s ease-out both;
+}
+
+/* La línea punteada que sigue al título */
+h2::after {
+    content: '';
+    flex: 1;
+    border-top: 2px dashed var(--borde);
+}
+
+.nota,
+#vacio {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: var(--texto-suave);
+    animation: aparecer 0.6s 0.3s ease-out both;
+}
+
+#vacio {
+    padding: 28px 16px;
+    text-align: center;
+    border: 2px dashed var(--borde);
+    border-radius: 10px;
+}
+
+table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+  border-spacing: 0 8px; /* separa las filas: cada una es un boleto suelto */
+    animation: aparecer 0.6s 0.36s ease-out both;
+}
+
+th {
+    padding: 0 14px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+     text-align: left;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+}
+
+th:first-child {
+    width: 32%;
+}
+
+th:last-child {
+    width: 76px;
+    text-align: right;
+}
+
+/* Cada fila es un boleto de papel */
+td {
+    padding: 14px;
+    color: var(--tinta);
+    background: var(--papel);
+}
+
+/* Muesca a la izquierda del boleto */
+td:first-child {
+    background: radial-gradient(circle at 0 50%, transparent 7px, var(--papel) 8px);
+    padding-left: 18px;
+}
+
+/* El talón con los clics: separado por una línea de corte y con muesca a la derecha */
+td:last-child {
+    padding-right: 18px;
+    text-align: right;
+    font-family: var(--letrero);
+    font-size: 18px;
+    color: var(--senal);
+    border-left: 2px dashed var(--papel-sombra);
+    background: radial-gradient(circle at 100% 50%, transparent 7px, var(--papel) 8px);
+}
+
+td a {
+    font-weight: 600;
+    color: var(--tinta);
+    text-decoration: none;
+}
+
+td a:hover {
+    color: var(--senal);
+    text-decoration: underline;
+}
+
+/* Los links largos se cortan con "..." */
+.destino {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #6b604f;
+}
+
+/* Las filas aparecen una tras otra */
+tbody tr {
+    animation: aparecer 0.4s ease-out both;
+}
+tbody tr:nth-child(2) { animation-delay: 0.05s; }
+tbody tr:nth-child(3) { animation-delay: 0.1s; }
+tbody tr:nth-child(4) { animation-delay: 0.15s; }
+tbody tr:nth-child(5) { animation-delay: 0.2s; }
+tbody tr:nth-child(n + 6) { animation-delay: 0.25s; }
+
+
+/* ── Accesibilidad: si la persona pidió menos movimiento
+      en su sistema, sacamos las animaciones ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    }
+}
