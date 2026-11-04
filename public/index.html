@@ -14,7 +14,9 @@
     <input id="url" type="url" placeholder="https://..." required>
 
     <label for="slug">Nombre corto (opcional)</label>
-    <input id="slug" type="text" placeholder="cv">
+        <input id="slug" type="text" placeholder="cv"
+          pattern="[a-zA-Z0-9-]+" maxlength="30"
+          title="Solo letras, números y guiones">
 
     <button type="submit">Acortar</button>
   </form>
