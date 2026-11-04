@@ -2,7 +2,9 @@
 
 Una aplicación web para acortar links. Pegás un link largo, elegís un nombre corto (o dejás que se genere uno al azar) y obtenés una dirección como `tudominio.com/cv` que redirige al link original.
 
-Es mi primer proyecto con Node.js, y lo armé por fases para practicar Git y GitHub: cada función nueva se desarrolló en su propia rama y entró a `main` con un pull request.
+Es mi primer proyecto con Node.js. Lo armé por fases para practicar Git y GitHub: cada función nueva se desarrolló en su propia rama y entró a `main` mediante un pull request.
+
+Usé IA (Claude Opus 5.5) como asistente durante el desarrollo, para el diseño, para redacción y para solucionar errores en el código. El objetivo del proyecto es aprender, así que la usé en las partes que no me cambia eso, y me aseguré de entender cada línea antes de sumarla.
 
 ## Funciones
 
@@ -91,10 +93,3 @@ Al crear un link, la API responde con estos códigos:
 ```
 
 La base de datos es el archivo `links.db`, que se crea solo la primera vez que arranca el servidor. No se sube al repositorio (está en `.gitignore`), igual que `.env`.
-
-## Próximos pasos
-
-- Publicar la aplicación en internet
-- Editar y borrar links
-- Código QR para cada link
-- Gráfico de clics por día
