@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { rateLimit } = require('express-rate-limit'); // limita cuántos links puede crear cada persona
 const { crearLink, buscarLink, listarLinks, sumarClick } = require('./db'); // importa las funciones que se crearon en db.js
 
 // carga las variables del archivo .env (si no existe, sigue igual)
@@ -12,14 +13,15 @@ try {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// contraseña del panel; si no está, el servidor no arranca
+// contraseña para ver la lista completa de links; si no está, el servidor no arranca
 const PASSWORD = process.env.PANEL_PASSWORD;
 if (!PASSWORD) {
     console.error('Falta PANEL_PASSWORD en el archivo .env');
-    process.exit(1); // apaga el programa: mejor no arrancar que dejar el panel abierto
+    process.exit(1); // apaga el programa: mejor no arrancar que dejar la lista abierta
 }
 
 app.use(express.json()); // desarma el JSON que llega en el body y lo pone en req.body como objeto de JS
+app.use(express.static(path.join(__dirname, 'public'))); // muestra los archivos de la carpeta "public" (ahora sin contraseña)
 
 // genera un nombre corto al azar, por ejemplo "k3x9a"
 function generarSlug() {
@@ -64,23 +66,21 @@ function pedirPassword(req, res, next) {
     }
 
     res.set('WWW-Authenticate', 'Basic realm="Link shortener"'); // hace que el navegador muestre el cuadro de contraseña
-    res.status(401).send('Necesitás la contraseña para entrar al panel'); // 401 = falta identificarse
+    res.status(401).send('Necesitás la contraseña para ver todos los links'); // 401 = falta identificarse
 }
 
-// ruta de prueba
+// // límite: cada persona (cada IP) puede crear hasta 10 links por hora
+// const limiteCrear = rateLimit({
+//     windowMs: 60 * 60 * 1000, // la ventana de tiempo en milisegundos: 60 min × 60 seg × 1000 = 1 hora
+//     limit: 10,                // cuántos pedidos se permiten en esa ventana
+//     message: { error: 'Creaste muchos links seguidos. Probá de nuevo en un rato.' }, // lo que se responde al pasarse (código 429)
+// });
+
 app.get('/ping', (req, res) => {
     res.send('pong');
 });
 
-// archivos del panel: cada uno pasa primero por pedirPassword
-// si agregás un archivo nuevo a public, sumalo a esta lista
-const archivosPanel = express.static(path.join(__dirname, 'public'));
-app.get(['/', '/index.html', '/app.js', '/style.css'], pedirPassword, archivosPanel);
-
-// todo lo que empiece con /api pide contraseña (va antes de las rutas /api)
-app.use('/api', pedirPassword);
-
-// crear un link nuevo: POST /api/links
+// crear un link nuevo: POST /api/links (público, pero con límite)
 app.post('/api/links', (req, res) => {
     const { url } = req.body;
     let slug = (req.body.slug || '').trim().toLowerCase();
@@ -121,8 +121,23 @@ app.post('/api/links', (req, res) => {
     res.status(201).json({ slug, url, linkCorto });
 });
 
-// listar todos los links: GET /api/links (para la tabla del panel)
-app.get('/api/links', (req, res) => {
+// los links de una persona: GET /api/mis-links?slugs=cv,k3x9a (público)
+// el navegador manda los nombres que guardó y le devolvemos solo esos
+app.get('/api/mis-links', (req, res) => {
+    const slugs = (req.query.slugs || '')     // req.query = lo que viene después del "?" en la dirección
+        .split(',')                           // "cv,k3x9a" → ['cv', 'k3x9a']
+        .filter(s => FORMATO_SLUG.test(s))    // descarta lo que no tenga formato de nombre
+        .slice(0, 100);                       // como mucho 100, para que nadie pida miles de una vez
+
+    const links = slugs
+        .map(buscarLink)                      // busca cada uno en la base
+        .filter(Boolean);                     // saca los que no existen (buscarLink devolvió undefined)
+
+    res.json(links);
+});
+
+// listar TODOS los links: GET /api/links (solo con contraseña, para vos)
+app.get('/api/links', pedirPassword, (req, res) => {
     res.json(listarLinks());
 });
 
