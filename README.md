@@ -93,3 +93,4 @@ Al crear un link, la API responde con estos códigos:
 ```
 
 La base de datos es el archivo `links.db`, que se crea solo la primera vez que arranca el servidor. No se sube al repositorio (está en `.gitignore`), igual que `.env`.
+Desarrollado por Santiago Bordad.
